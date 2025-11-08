@@ -1,6 +1,8 @@
 # this allows us to use code from
 # the open-source pygame library
 # throughout this file
+from asteroidfield import AsteroidField
+from asteroid import Asteroid
 import pygame
 from constants import *
 from logger import log_state
@@ -13,9 +15,18 @@ def main():
 
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
+    asteroids = pygame.sprite.Group()
+    updatable = pygame.sprite.Group()
+    drawable = pygame.sprite.Group()
+
+    AsteroidField.containers = (updatable)
+    Asteroid.containers = (asteroids, updatable, drawable)
+    Player.containers = (updatable, drawable)
+
     clock = pygame.time.Clock()
     dt = 0
     
+    field = AsteroidField()
     player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
     while True:
         log_state()
@@ -24,8 +35,12 @@ def main():
                 return
 
         screen.fill("black")
-        player.update(dt)
-        player.draw(screen)
+
+        for thing in updatable:
+            thing.update(dt)
+
+        for thing in drawable:
+            thing.draw(screen)
         pygame.display.flip()
         dt = clock.tick(60) / 1000
 
